@@ -35,7 +35,7 @@ public class NsdHelper {
     public static final String SERVICE_TYPE = "_http._tcp.";
 
     public static final String TAG = "NsdHelper";
-    public String mServiceName = "TitouApp";
+    public String mServiceName = "TitouSocketApp";
 
     NsdServiceInfo mService;
 

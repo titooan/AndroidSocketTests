@@ -118,6 +118,7 @@ public class ClientActivity extends ActionBarActivity {
                             out.close();
                             in.close();
                             socket.close();
+                            mNsdHelper.discoverServices();
                             return;
                         }
 
@@ -174,9 +175,13 @@ public class ClientActivity extends ActionBarActivity {
         Log.e("State", "Destroy");
         super.onDestroy();
         try {
-            clientThread.interrupt();
-            socket.close();
-        } catch (IOException e) {
+            if(clientThread != null) {
+                clientThread.interrupt();
+            }
+            if(socket != null) {
+                socket.close();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
