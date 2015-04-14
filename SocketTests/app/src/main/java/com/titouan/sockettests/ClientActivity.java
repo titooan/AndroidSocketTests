@@ -3,6 +3,7 @@ package com.titouan.sockettests;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,11 +14,13 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.PublicKey;
 
 
 public class ClientActivity extends ActionBarActivity {
@@ -28,21 +31,25 @@ public class ClientActivity extends ActionBarActivity {
     private TextView tvMessage;
     private Handler updateConversationHandler;
 
-    private static final String SERVER_IP = "192.168.1.22";
-    public static final int SERVER_PORT = ServerActivity.SERVERPORT;
-
     private PrintWriter out = null;
     private BufferedReader in = null;
+
+    private NsdHelper mNsdHelper;
+
+    private Thread clientThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("State", "Create");
         setContentView(R.layout.activity_client);
 
         message = (EditText) findViewById(R.id.message);
         tvMessage = (TextView) findViewById(R.id.text);
 
-        new Thread(new ClientThread()).start();
+        mNsdHelper = new NsdHelper(this);
+        mNsdHelper.initializeDiscoveryListener();
+        mNsdHelper.discoverServices();
 
         updateConversationHandler = new Handler();
     }
@@ -50,6 +57,12 @@ public class ClientActivity extends ActionBarActivity {
     public void send(View v){
         out.println(message.getText().toString());
         out.flush();
+        message.setText("");
+    }
+
+    public void connectToServer(InetAddress hostAddress, int hostPort){
+        clientThread = new Thread(new ClientThread(hostAddress, hostPort));
+        clientThread.start();
     }
 
 
@@ -77,42 +90,50 @@ public class ClientActivity extends ActionBarActivity {
 
     class ClientThread implements Runnable {
 
+        private InetAddress hostAddress;
+        private int hostPort;
+
+        ClientThread(InetAddress hostAddress, int hostPort) {
+            this.hostAddress = hostAddress;
+            this.hostPort = hostPort;
+        }
+
         @Override
         public void run(){
-            tvMessage.setText("Try");
             try{
-                InetAddress serverAddr = InetAddress.getByName(SERVER_IP);
-                socket = new Socket(serverAddr, SERVER_PORT);
+                socket = new Socket(hostAddress, hostPort);
+
+                mNsdHelper.stopDiscovery();
+
                 updateConversationHandler.post(new UpdateUIThread("Connected."));
+
+                out = new PrintWriter(socket.getOutputStream());
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                while(!Thread.currentThread().isInterrupted()){
+                    try{
+                        String read = in.readLine();
+                        if(read == null){
+                            updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
+                            out.close();
+                            in.close();
+                            socket.close();
+                            return;
+                        }
+
+                        updateConversationHandler.post(new UpdateUIThread(read));
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+                }
             }catch(UnknownHostException e1){
                 e1.printStackTrace();
             }catch(IOException e2){
                 e2.printStackTrace();
-            }
-
-            try {
-                out = new PrintWriter(socket.getOutputStream());
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            } catch (Exception e) {
+            }catch (Exception e) {
                 e.printStackTrace();
             }
 
-            while(!Thread.currentThread().isInterrupted()){
-                try{
-                    String read = in.readLine();
-                    if(read == null){
-                        updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
-                        out.close();
-                        in.close();
-                        socket.close();
-                        return;
-                    }
-
-                    updateConversationHandler.post(new UpdateUIThread(read));
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -125,7 +146,38 @@ public class ClientActivity extends ActionBarActivity {
 
         @Override
         public void run(){
-            tvMessage.setText(tvMessage.getText().toString()+msg+"\n");
+            display(this.msg);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        Log.e("State", "Pause");
+        if (mNsdHelper != null) {
+            mNsdHelper.stopDiscovery();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.e("State", "Resume");
+        super.onResume();
+    }
+
+    private void display(String str){
+        tvMessage.setText(str+"\n"+tvMessage.getText().toString());
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.e("State", "Destroy");
+        super.onDestroy();
+        try {
+            clientThread.interrupt();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
