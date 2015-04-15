@@ -41,15 +41,23 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void launchServer(View v){
-        startActivity(new Intent(this, ServerActivity.class));
-    }
-
-    public void launchClient(View v){
-        startActivity(new Intent(this, ClientActivity.class));
-    }
-
-    public void launchMusic(View v){
-        startActivity(new Intent(this, MusicActivity.class));
+    public void onClick(View view){
+        switch(view.getId()){
+            case R.id.server:
+                startActivity(new Intent(this, ServerActivity.class));
+                break;
+            case R.id.client:
+                startActivity(new Intent(this, ClientActivity.class));
+                break;
+            case R.id.music:
+                startActivity(new Intent(this, MusicActivity.class));
+                break;
+            case R.id.musicServer:
+                startActivity(new Intent(this, MusicServerActivity.class));
+                break;
+            case R.id.musicClient:
+                startActivity(new Intent(this, MusicClientActivity.class));
+                break;
+        }
     }
 }

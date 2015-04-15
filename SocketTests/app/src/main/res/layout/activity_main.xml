@@ -12,21 +12,35 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Server"
-        android:onClick="launchServer" />
+        android:onClick="onClick" />
 
     <Button
         android:id="@+id/client"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Client"
-        android:onClick="launchClient" />
+        android:onClick="onClick" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Music"
         android:id="@+id/music"
-        android:onClick="launchMusic"/>
+        android:onClick="onClick"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Music Server"
+        android:id="@+id/musicServer"
+        android:onClick="onClick"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Music Client"
+        android:id="@+id/musicClient"
+        android:onClick="onClick" />
 
 
 </LinearLayout>

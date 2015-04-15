@@ -1,13 +1,18 @@
 package com.titouan.sockettests;
 
 import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 
 public class MusicActivity extends ActionBarActivity {
+
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,6 +20,19 @@ public class MusicActivity extends ActionBarActivity {
         setContentView(R.layout.activity_music);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.song);
+    }
+
+    public void onClick(View view){
+        switch(view.getId()){
+            case R.id.play:
+                mediaPlayer.start();
+                break;
+            case R.id.pause:
+                mediaPlayer.pause();
+                break;
+        }
     }
 
 

@@ -46,6 +46,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
         </activity>
+        <activity
+            android:name=".MusicServerActivity"
+            android:label="@string/title_activity_music_server"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.titouan.sockettests.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MusicClientActivity"
+            android:label="@string/title_activity_music_client"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.titouan.sockettests.MainActivity" />
+        </activity>
     </application>
 
 </manifest>
