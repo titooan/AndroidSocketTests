@@ -1,7 +1,10 @@
 package com.titouan.sockettests;
 
+import android.content.ContentResolver;
+import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -50,6 +57,7 @@ public class MusicServerActivity extends ActionBarActivity {
 
     //MediaPlayer attributes
     MediaPlayer mediaPlayer;
+    JSONArray musicsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +88,11 @@ public class MusicServerActivity extends ActionBarActivity {
     }
 
     class ServerThread implements Runnable{
+
         public void run(){
+
+            musicsList = getSongsList();
+
             Socket socket = null;
             try{
                 serverSocket = new ServerSocket(0);
@@ -131,6 +143,9 @@ public class MusicServerActivity extends ActionBarActivity {
 
         @Override
         public void run() {
+
+            send(musicsList.toString());
+
             while(!Thread.currentThread().isInterrupted()){
                 try{
                     String read = in.readLine();
@@ -228,7 +243,10 @@ public class MusicServerActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         mNsdHelper.tearDown();
-        mediaPlayer.stop();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+
         try{
             serverSocket.close();
             serverThread.interrupt();
@@ -306,6 +324,44 @@ public class MusicServerActivity extends ActionBarActivity {
         }
 
         return new String(dectyptedText);
+    }
+
+    public JSONArray getSongsList(){
+
+        JSONArray musicsArray = new JSONArray();
+
+        ContentResolver musicResolver = getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+
+        if(musicCursor!=null && musicCursor.moveToFirst()){
+            //get columns
+            int titleColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ARTIST);
+            //add songs to list
+            do {
+                JSONObject music = new JSONObject();
+                long thisId = musicCursor.getLong(idColumn);
+                String thisTitle = musicCursor.getString(titleColumn);
+                String thisArtist = musicCursor.getString(artistColumn);
+
+                try {
+                    music.put("id", thisId);
+                    music.put("title", thisTitle);
+                    music.put("artist", thisArtist);
+                    musicsArray.put(music);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            while (musicCursor.moveToNext());
+        }
+
+        return musicsArray;
     }
 
 
