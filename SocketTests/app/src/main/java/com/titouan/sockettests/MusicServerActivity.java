@@ -51,12 +51,6 @@ public class MusicServerActivity extends ActionBarActivity {
 
     private NsdHelper mNsdHelper;
 
-    //Encryption constants
-    private static final String RSA_ALGORITHM = "RSA";
-    private static final String AES_ALGORITHM = "AES/CBC/PKCS7Padding";
-    private static final String PUBLIC_KEY_FILE = "public.key";
-    private static final String PRIVATE_KEY_FILE = "private.key";
-
     //MediaPlayer attributes
     MediaPlayer mediaPlayer;
     JSONArray musicsList;
@@ -268,77 +262,6 @@ public class MusicServerActivity extends ActionBarActivity {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-
-    /**
-     * Encrypt the text using public key
-     * @param text original text/key/iv
-     * @return
-     */
-    private byte[] rsaEncrypt(byte[] text, PublicKey key) {
-        byte[] cipherText = null;
-        try {
-            // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
-            // encrypt the plain text using the public key
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            cipherText = cipher.doFinal(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return cipherText;
-    }
-
-    /**
-     * Encrypt the plain text using public key.
-     *
-     * @param text
-     *          : original plain text
-     * @param key
-     *          :The public key
-     * @return Encrypted text
-     * @throws Exception
-     */
-    public static byte[] encrypt(String text, PublicKey key) {
-        byte[] cipherText = null;
-        try {
-            // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
-            // encrypt the plain text using the public key
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            cipherText = cipher.doFinal(text.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return cipherText;
-    }
-
-    /**
-     * Decrypt text using private key.
-     *
-     * @param text
-     *          :encrypted text
-     * @param key
-     *          :The private key
-     * @return plain text
-     * @throws Exception
-     */
-    public static String decrypt(byte[] text, PrivateKey key) {
-        byte[] dectyptedText = null;
-        try {
-            // get an RSA cipher object and print the provider
-            final Cipher cipher = Cipher.getInstance(RSA_ALGORITHM);
-
-            // decrypt the text using the private key
-            cipher.init(Cipher.DECRYPT_MODE, key);
-            dectyptedText = cipher.doFinal(text);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return new String(dectyptedText);
     }
 
     public JSONArray getSongsList(){

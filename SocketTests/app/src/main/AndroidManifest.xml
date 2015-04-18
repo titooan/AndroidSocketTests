@@ -24,6 +24,7 @@
         <activity
             android:name=".ServerActivity"
             android:label="@string/title_activity_server"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
