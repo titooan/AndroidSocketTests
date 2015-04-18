@@ -36,18 +36,7 @@ public class MusicActivity extends ActionBarActivity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.song);
-
-        try {
-            mediaPlayer.reset();
-            Uri trackUri = ContentUris.withAppendedId(
-                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    761);
-            mediaPlayer.setDataSource(this, trackUri);
-            mediaPlayer.prepare();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mediaPlayer = MediaPlayer.create(this, R.raw.music);
     }
 
     public void onClick(View view){
