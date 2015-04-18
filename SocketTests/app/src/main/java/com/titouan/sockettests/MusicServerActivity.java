@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,12 +27,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.Cipher;
 
 
 public class MusicServerActivity extends ActionBarActivity {
@@ -66,7 +59,7 @@ public class MusicServerActivity extends ActionBarActivity {
 
         WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
         String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
-        text.setText(ip+"\n");
+        text.setText(ip + "\n");
 
         clientThreads = new ArrayList<>();
 
@@ -80,21 +73,18 @@ public class MusicServerActivity extends ActionBarActivity {
 
     }
 
-    private void display(String str){
-        text.setText(str+"\n"+text.getText().toString());
-    }
 
-    class ServerThread implements Runnable{
+    class ServerThread implements Runnable {
 
-        public void run(){
+        public void run() {
 
             musicsList = getSongsList();
 
             Socket socket = null;
-            try{
+            try {
                 serverSocket = new ServerSocket(0);
                 localPort = serverSocket.getLocalPort();
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -102,16 +92,16 @@ public class MusicServerActivity extends ActionBarActivity {
             mNsdHelper.initializeRegistrationListener();
             mNsdHelper.registerService(localPort);
 
-            updateConversationHandler.post(new UpdateUIThread("Port : "+localPort));
+            updateConversationHandler.post(new UpdateUIThread("Port : " + localPort));
 
-            while(!Thread.currentThread().isInterrupted()){
-                try{
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
                     socket = serverSocket.accept();
 
                     CommunicationThread commThread = new CommunicationThread(socket);
                     clientThreads.add(commThread);
                     new Thread(commThread).start();
-                }catch(IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
@@ -125,15 +115,15 @@ public class MusicServerActivity extends ActionBarActivity {
         private Socket clientSocket;
 
         CommunicationThread(Socket clientSocket) {
-            try{
+            try {
                 in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 out = new PrintWriter(new BufferedWriter(
                         new OutputStreamWriter(clientSocket.getOutputStream()))
-                        ,true);
+                        , true);
 
                 this.clientSocket = clientSocket;
 
-            }catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -143,20 +133,20 @@ public class MusicServerActivity extends ActionBarActivity {
 
             send(musicsList.toString());
 
-            while(!Thread.currentThread().isInterrupted()){
-                try{
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
                     String read = in.readLine();
-                    if(read == null){
+                    if (read == null) {
                         updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
                         close();
                         return;
                     }
-                    if(read.equals("Play")){
+                    if (read.equals("Play")) {
                         mediaPlayer.start();
-                    }else if(read.equals("Pause")){
+                    } else if (read.equals("Pause")) {
                         mediaPlayer.pause();
-                    }else{
-                        try{
+                    } else {
+                        try {
                             long newSongId = Integer.parseInt(read);
                             mediaPlayer.reset();
                             Uri newSongUri = ContentUris.withAppendedId(
@@ -164,30 +154,30 @@ public class MusicServerActivity extends ActionBarActivity {
                                     newSongId);
                             mediaPlayer.setDataSource(MusicServerActivity.this, newSongUri);
                             mediaPlayer.prepare();
-                        }catch(Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
 
                     updateConversationHandler.post(new UpdateUIThread(read));
 
-                }catch(IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        public void send(String message){
+        public void send(String message) {
             out.println(message);
             out.flush();
         }
 
-        public void close(){
+        public void close() {
             try {
                 in.close();
                 out.close();
                 clientSocket.close();
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
@@ -198,55 +188,24 @@ public class MusicServerActivity extends ActionBarActivity {
     class UpdateUIThread implements Runnable {
         private String msg;
 
-        public UpdateUIThread(String str){
+        public UpdateUIThread(String str) {
             this.msg = str;
         }
 
         @Override
-        public void run(){
-            text.setText(text.getText().toString()+msg+"\n");
+        public void run() {
+            text.setText(text.getText().toString() + msg + "\n");
         }
     }
 
-    public void send(View v){
-        for(CommunicationThread thread : clientThreads){
+    public void send(View v) {
+        for (CommunicationThread thread : clientThreads) {
             thread.send(message.getText().toString());
         }
         message.setText("");
         //TODO
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_server, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        try{
-            serverSocket.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -256,15 +215,19 @@ public class MusicServerActivity extends ActionBarActivity {
             mediaPlayer.release();
         }
 
-        try{
+        try {
             serverSocket.close();
             serverThread.interrupt();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public JSONArray getSongsList(){
+    /**
+     * Method used to get the list of songs stored on the phone memory
+     * @return JSONArray containing the list of songs
+     */
+    public JSONArray getSongsList() {
 
         JSONArray musicsArray = new JSONArray();
 
@@ -272,7 +235,7 @@ public class MusicServerActivity extends ActionBarActivity {
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
-        if(musicCursor!=null && musicCursor.moveToFirst()){
+        if (musicCursor != null && musicCursor.moveToFirst()) {
             //get columns
             int titleColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.TITLE);
