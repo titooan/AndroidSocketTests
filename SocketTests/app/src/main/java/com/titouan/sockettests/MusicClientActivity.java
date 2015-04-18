@@ -8,7 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
+
+import org.json.JSONArray;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,6 +24,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MusicClientActivity extends ActionBarActivity {
@@ -28,6 +33,8 @@ public class MusicClientActivity extends ActionBarActivity {
     private Socket socket;
 
     private TextView tvMessage;
+    private ListView lvSongs;
+
     private Handler updateConversationHandler;
 
     private PrintWriter out = null;
@@ -37,6 +44,8 @@ public class MusicClientActivity extends ActionBarActivity {
 
     private Thread clientThread;
 
+    private ArrayList<Song> songsList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +53,7 @@ public class MusicClientActivity extends ActionBarActivity {
         setContentView(R.layout.activity_music_client);
 
         tvMessage = (TextView) findViewById(R.id.text);
+        lvSongs = (ListView) findViewById(R.id.songs);
 
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeDiscoveryListener();
@@ -65,6 +75,11 @@ public class MusicClientActivity extends ActionBarActivity {
                 break;
         }
 
+    }
+
+    public void songPicked(View view){
+        out.println(songsList.get((Integer) view.getTag()).getId());
+        out.flush();
     }
 
 
@@ -118,6 +133,17 @@ public class MusicClientActivity extends ActionBarActivity {
                 out = new PrintWriter(socket.getOutputStream());
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
+
+                //get the list of songs sent by server
+                songsList = new ArrayList<>();
+                JSONArray musicsArray = new JSONArray(in.readLine());
+                for(int i=0; i<musicsArray.length(); i++){
+                    Song s = new Song(musicsArray.getJSONObject(i));
+                    songsList.add(s);
+                }
+
+                updateConversationHandler.post(new UpdateListView());
+
                 while(!Thread.currentThread().isInterrupted()){
                     try{
                         String read = in.readLine();
@@ -156,6 +182,14 @@ public class MusicClientActivity extends ActionBarActivity {
         @Override
         public void run(){
             display(this.msg);
+        }
+    }
+
+    class UpdateListView implements Runnable {
+        @Override
+        public void run(){
+            SongAdapter songAdapter = new SongAdapter(MusicClientActivity.this, songsList);
+            lvSongs.setAdapter(songAdapter);
         }
     }
 

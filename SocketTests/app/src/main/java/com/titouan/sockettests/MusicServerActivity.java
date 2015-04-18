@@ -1,6 +1,7 @@
 package com.titouan.sockettests;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -81,6 +83,7 @@ public class MusicServerActivity extends ActionBarActivity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
         mediaPlayer = MediaPlayer.create(this, R.raw.music);
+
     }
 
     private void display(String str){
@@ -158,6 +161,18 @@ public class MusicServerActivity extends ActionBarActivity {
                         mediaPlayer.start();
                     }else if(read.equals("Pause")){
                         mediaPlayer.pause();
+                    }else{
+                        try{
+                            long newSongId = Integer.parseInt(read);
+                            mediaPlayer.reset();
+                            Uri newSongUri = ContentUris.withAppendedId(
+                                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                                    newSongId);
+                            mediaPlayer.setDataSource(MusicServerActivity.this, newSongUri);
+                            mediaPlayer.prepare();
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
                     }
 
                     updateConversationHandler.post(new UpdateUIThread(read));
