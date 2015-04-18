@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -23,6 +24,7 @@ public class ClientActivity extends ActionBarActivity {
     private EditText message;
     private TextView tvMessage;
     private Handler updateConversationHandler;
+    private Button btnSend;
 
     private PrintWriter out = null;
     private BufferedReader in = null;
@@ -38,6 +40,7 @@ public class ClientActivity extends ActionBarActivity {
 
         message = (EditText) findViewById(R.id.message);
         tvMessage = (TextView) findViewById(R.id.text);
+        btnSend = (Button) findViewById(R.id.send);
 
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeDiscoveryListener();
@@ -116,6 +119,12 @@ public class ClientActivity extends ActionBarActivity {
 
         @Override
         public void run() {
+            if(msg.equals("Connected.")){
+                btnSend.setEnabled(true);
+            }else if(msg.equals("Connexion closed.")){
+                btnSend.setEnabled(false);
+            }
+
             display(this.msg);
         }
     }

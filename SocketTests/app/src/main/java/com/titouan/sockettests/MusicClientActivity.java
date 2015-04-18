@@ -1,42 +1,33 @@
 package com.titouan.sockettests;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class MusicClientActivity extends ActionBarActivity {
 
     private Socket socket;
 
-    private TextView tvMessage;
     private ListView lvSongs;
 
-    private Handler updateConversationHandler;
+    private Handler updateUIHandler;
 
     private PrintWriter out = null;
     private BufferedReader in = null;
@@ -50,17 +41,15 @@ public class MusicClientActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("State", "Create");
         setContentView(R.layout.activity_music_client);
 
-        tvMessage = (TextView) findViewById(R.id.text);
         lvSongs = (ListView) findViewById(R.id.songs);
 
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeDiscoveryListener();
         mNsdHelper.discoverServices();
 
-        updateConversationHandler = new Handler();
+        updateUIHandler = new Handler();
     }
 
     public void onClick(View view){
@@ -107,11 +96,8 @@ public class MusicClientActivity extends ActionBarActivity {
 
                 mNsdHelper.stopDiscovery();
 
-                updateConversationHandler.post(new UpdateUIThread("Connected."));
-
                 out = new PrintWriter(socket.getOutputStream());
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
 
                 //get the list of songs sent by server
                 songsList = new ArrayList<>();
@@ -121,25 +107,32 @@ public class MusicClientActivity extends ActionBarActivity {
                     songsList.add(s);
                 }
 
-                updateConversationHandler.post(new UpdateListView());
+                updateUIHandler.post(new UpdateListView());
 
                 while(!Thread.currentThread().isInterrupted()){
                     try{
                         String read = in.readLine();
                         if(read == null){
-                            updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
                             out.close();
                             in.close();
                             socket.close();
                             mNsdHelper.discoverServices();
+                            Thread.currentThread().interrupt();
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(MusicClientActivity.this, "Connexion with server lost.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            startActivity(new Intent(MusicClientActivity.this, MainActivity.class));
+                            MusicClientActivity.this.finish();
                             return;
                         }
-
-                        updateConversationHandler.post(new UpdateUIThread(read));
                     }catch(IOException e){
                         e.printStackTrace();
                     }
                 }
+
             }catch(UnknownHostException e1){
                 e1.printStackTrace();
             }catch(IOException e2){
@@ -148,19 +141,6 @@ public class MusicClientActivity extends ActionBarActivity {
                 e.printStackTrace();
             }
 
-        }
-    }
-
-    class UpdateUIThread implements Runnable {
-        private String msg;
-
-        public UpdateUIThread(String str){
-            this.msg = str;
-        }
-
-        @Override
-        public void run(){
-            display(this.msg);
         }
     }
 
@@ -179,16 +159,6 @@ public class MusicClientActivity extends ActionBarActivity {
             mNsdHelper.stopDiscovery();
         }
         super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        Log.e("State", "Resume");
-        super.onResume();
-    }
-
-    private void display(String str){
-        tvMessage.setText(str+"\n"+tvMessage.getText().toString());
     }
 
     @Override

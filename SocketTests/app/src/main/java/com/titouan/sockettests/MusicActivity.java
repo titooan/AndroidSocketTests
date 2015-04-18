@@ -6,19 +6,11 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -62,8 +54,8 @@ public class MusicActivity extends ActionBarActivity {
         }).start();
     }
 
-    public void onClick(View view){
-        switch(view.getId()){
+    public void onClick(View view) {
+        switch (view.getId()) {
             case R.id.play:
                 mediaPlayer.start();
                 break;
@@ -73,7 +65,7 @@ public class MusicActivity extends ActionBarActivity {
         }
     }
 
-    public void songPicked(View view){
+    public void songPicked(View view) {
 
         try {
             mediaPlayer.reset();
@@ -93,15 +85,16 @@ public class MusicActivity extends ActionBarActivity {
 
     /**
      * Method used to get the list of songs stored on phone
+     *
      * @return songsList
      */
-    public ArrayList<Song> getSongsList(){
+    public ArrayList<Song> getSongsList() {
         ArrayList<Song> list = new ArrayList<>();
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
 
-        if(musicCursor!=null && musicCursor.moveToFirst()){
+        if (musicCursor != null && musicCursor.moveToFirst()) {
             //get columns
             int titleColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.TITLE);
