@@ -17,27 +17,24 @@
             android:layout_height="wrap_content"
             android:text="Play"
             android:id="@+id/play"
-            android:onClick="onClick" />
+            android:onClick="onClick"
+            android:enabled="false"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Pause"
             android:id="@+id/pause"
-            android:onClick="onClick" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="List"
-            android:id="@+id/list"
-            android:onClick="onClick" />
+            android:onClick="onClick"
+            android:enabled="false"/>
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
+    <ListView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/text"/>
+        android:id="@+id/songs"
+        android:choiceMode="singleChoice"/>
 
 </LinearLayout>
+
