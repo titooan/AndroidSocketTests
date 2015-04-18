@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -26,6 +27,8 @@ public class MusicClientActivity extends ActionBarActivity {
     private Socket socket;
 
     private ListView lvSongs;
+    private Button btnPlay;
+    private Button btnPause;
 
     private Handler updateUIHandler;
 
@@ -44,6 +47,8 @@ public class MusicClientActivity extends ActionBarActivity {
         setContentView(R.layout.activity_music_client);
 
         lvSongs = (ListView) findViewById(R.id.songs);
+        btnPause = (Button) findViewById(R.id.pause);
+        btnPlay = (Button) findViewById(R.id.play);
 
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeDiscoveryListener();
@@ -149,6 +154,8 @@ public class MusicClientActivity extends ActionBarActivity {
         public void run(){
             SongAdapter songAdapter = new SongAdapter(MusicClientActivity.this, songsList);
             lvSongs.setAdapter(songAdapter);
+            btnPause.setEnabled(true);
+            btnPlay.setEnabled(true);
         }
     }
 
