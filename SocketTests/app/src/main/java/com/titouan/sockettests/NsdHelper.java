@@ -128,7 +128,6 @@ public class NsdHelper {
             @Override
             public void onServiceRegistered(NsdServiceInfo NsdServiceInfo) {
                 mServiceName = NsdServiceInfo.getServiceName();
-                Toast.makeText(mContext, mServiceName, Toast.LENGTH_SHORT).show();
             }
             
             @Override
@@ -138,12 +137,10 @@ public class NsdHelper {
 
             @Override
             public void onServiceUnregistered(NsdServiceInfo arg0) {
-                Toast.makeText(mContext, "Unregistration", Toast.LENGTH_SHORT).show();
             }
             
             @Override
             public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
-                Toast.makeText(mContext, "Unregistration Failed", Toast.LENGTH_SHORT).show();
             }
             
         };

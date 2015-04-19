@@ -33,7 +33,8 @@
         <activity
             android:name=".ClientActivity"
             android:label="@string/title_activity_client"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
@@ -41,7 +42,8 @@
         <activity
             android:name=".MusicActivity"
             android:label="@string/title_activity_music"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
@@ -49,7 +51,8 @@
         <activity
             android:name=".MusicServerActivity"
             android:label="@string/title_activity_music_server"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
@@ -57,7 +60,8 @@
         <activity
             android:name=".MusicClientActivity"
             android:label="@string/title_activity_music_client"
-            android:parentActivityName=".MainActivity" >
+            android:parentActivityName=".MainActivity"
+            android:configChanges="orientation|screenSize">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
