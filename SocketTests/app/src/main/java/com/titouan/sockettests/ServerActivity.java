@@ -139,13 +139,11 @@ public class ServerActivity extends ActionBarActivity {
 
         public void close() {
             try {
+                clientSocket.close();
                 in.close();
                 out.close();
-                clientSocket.close();
             } catch (Exception e) {
-                e.printStackTrace();
             } catch (Throwable throwable) {
-                throwable.printStackTrace();
             }
         }
     }
@@ -178,6 +176,7 @@ public class ServerActivity extends ActionBarActivity {
 
         try {
             serverSocket.close();
+            //This will automatically terminate the ServerThread
         } catch (IOException e) {
             e.printStackTrace();
         }

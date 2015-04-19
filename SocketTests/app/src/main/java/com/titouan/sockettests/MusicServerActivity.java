@@ -99,7 +99,8 @@ public class MusicServerActivity extends ActionBarActivity {
                     clientThreads.add(commThread);
                     new Thread(commThread).start();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //Terminate thread when socket is closed.
+                    return;
                 }
             }
         }
@@ -162,7 +163,9 @@ public class MusicServerActivity extends ActionBarActivity {
                     updateConversationHandler.post(new UpdateUIThread(read));
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
+                    close();
+                    return;
                 }
             }
         }
@@ -174,9 +177,9 @@ public class MusicServerActivity extends ActionBarActivity {
 
         public void close() {
             try {
+                clientSocket.close();
                 in.close();
                 out.close();
-                clientSocket.close();
             } catch (Exception e) {
                 e.printStackTrace();
             } catch (Throwable throwable) {
@@ -218,9 +221,13 @@ public class MusicServerActivity extends ActionBarActivity {
         }
 
         try {
-            serverThread.interrupt();
+            serverSocket.close();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+
+        for(CommunicationThread thread : clientThreads){
+            thread.close();
         }
     }
 
