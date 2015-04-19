@@ -11,8 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -28,31 +26,39 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MusicServerActivity extends ActionBarActivity {
 
     private ServerSocket serverSocket;
-    private Handler updateConversationHandler;
+    private Handler updateUIHandler;
     private Thread serverThread = null;
     private List<CommunicationThread> clientThreads;
     private int localPort = -1;
 
     private TextView text;
+    private TextView tvSong;
+    private TextView tvArtist;
 
     private NsdHelper mNsdHelper;
 
     //MediaPlayer attributes
-    MediaPlayer mediaPlayer;
-    JSONArray musicsList;
+    private MediaPlayer mediaPlayer;
+    private JSONArray musicsList;
+    private Map<Long, Song> songsList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_server);
+        setContentView(R.layout.activity_music_server);
 
         text = (TextView) findViewById(R.id.text);
+        tvSong = (TextView) findViewById(R.id.song_title);
+        tvArtist = (TextView) findViewById(R.id.song_artist);
 
         WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
         String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
@@ -60,7 +66,7 @@ public class MusicServerActivity extends ActionBarActivity {
 
         clientThreads = new ArrayList<>();
 
-        updateConversationHandler = new Handler();
+        updateUIHandler = new Handler();
 
         this.serverThread = new Thread(new ServerThread());
         this.serverThread.start();
@@ -89,7 +95,7 @@ public class MusicServerActivity extends ActionBarActivity {
             mNsdHelper.registerService(localPort);
 
             //Register service on network, publish IP and Port
-            updateConversationHandler.post(new UpdateUIThread("Port : " + localPort));
+            updateUIHandler.post(new UpdateUIThread("Port : " + localPort));
 
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -136,7 +142,7 @@ public class MusicServerActivity extends ActionBarActivity {
                 try {
                     String read = in.readLine();
                     if (read == null) {
-                        updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
+                        updateUIHandler.post(new UpdateUIThread("Connexion closed."));
                         close();
                         return;
                     }
@@ -148,22 +154,24 @@ public class MusicServerActivity extends ActionBarActivity {
                         mediaPlayer.pause();
                     } else {
                         try {
-                            long newSongId = Integer.parseInt(read);
+                            long newSongId = Long.parseLong(read);
                             mediaPlayer.reset();
                             Uri newSongUri = ContentUris.withAppendedId(
                                     android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                                     newSongId);
                             mediaPlayer.setDataSource(MusicServerActivity.this, newSongUri);
                             mediaPlayer.prepare();
+                            sendToAll(songsList.get(newSongId).getJSONObject().toString());
+                            updateUIHandler.post(new UpdateSongView(songsList.get(newSongId)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
 
-                    updateConversationHandler.post(new UpdateUIThread(read));
+                    updateUIHandler.post(new UpdateUIThread(read));
 
                 } catch (IOException e) {
-                    updateConversationHandler.post(new UpdateUIThread("Connexion closed."));
+                    updateUIHandler.post(new UpdateUIThread("Connexion closed."));
                     close();
                     return;
                 }
@@ -201,11 +209,26 @@ public class MusicServerActivity extends ActionBarActivity {
         }
     }
 
+    class UpdateSongView implements Runnable {
+
+        Song song;
+
+        public UpdateSongView(Song song){
+            this.song = song;
+        }
+
+        @Override
+        public void run(){
+            tvSong.setText(song.getTitle());
+            tvArtist.setText(song.getArtist());
+        }
+    }
+
     /**
      * Methode using to send a message to all clients
      * @param message
      */
-    public void send(String message) {
+    public void sendToAll(String message) {
         for (CommunicationThread thread : clientThreads) {
             thread.send(message);
         }
@@ -238,6 +261,7 @@ public class MusicServerActivity extends ActionBarActivity {
     public JSONArray getSongsList() {
 
         JSONArray musicsArray = new JSONArray();
+        songsList = new HashMap<>();
 
         ContentResolver musicResolver = getContentResolver();
         Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -254,9 +278,11 @@ public class MusicServerActivity extends ActionBarActivity {
             //add songs to list
             do {
                 JSONObject music = new JSONObject();
-                long thisId = musicCursor.getLong(idColumn);
+                long thisId = musicCursor.getInt(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
+
+                songsList.put(thisId, new Song(thisId, thisTitle, thisArtist));
 
                 try {
                     music.put("id", thisId);

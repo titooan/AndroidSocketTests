@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -28,6 +30,8 @@ public class MusicClientActivity extends ActionBarActivity {
     private ListView lvSongs;
     private Button btnPlay;
     private Button btnPause;
+    private TextView tvSong;
+    private TextView tvArtist;
 
     private Handler updateUIHandler;
 
@@ -48,6 +52,8 @@ public class MusicClientActivity extends ActionBarActivity {
         lvSongs = (ListView) findViewById(R.id.songs);
         btnPause = (Button) findViewById(R.id.pause);
         btnPlay = (Button) findViewById(R.id.play);
+        tvSong = (TextView) findViewById(R.id.song_title);
+        tvArtist = (TextView) findViewById(R.id.song_artist);
 
         mNsdHelper = new NsdHelper(this);
         mNsdHelper.initializeDiscoveryListener();
@@ -72,7 +78,8 @@ public class MusicClientActivity extends ActionBarActivity {
     }
 
     public void songPicked(View view){
-        out.println(songsList.get((Integer) view.getTag()).getId());
+        Song pickedSong = songsList.get((Integer) view.getTag());
+        out.println(pickedSong.getId());
         out.flush();
     }
 
@@ -131,8 +138,12 @@ public class MusicClientActivity extends ActionBarActivity {
                             startActivity(new Intent(MusicClientActivity.this, MainActivity.class));
                             MusicClientActivity.this.finish();
                             return;
+                        }else{
+                            Log.d("Reçu", read);
+                            Song actualSong = new Song(read);
+                            updateUIHandler.post(new UpdateSongView(actualSong));
                         }
-                    }catch(IOException e){
+                    }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
@@ -155,6 +166,21 @@ public class MusicClientActivity extends ActionBarActivity {
             lvSongs.setAdapter(songAdapter);
             btnPause.setEnabled(true);
             btnPlay.setEnabled(true);
+        }
+    }
+
+    class UpdateSongView implements Runnable {
+
+        Song song;
+
+        public UpdateSongView(Song song){
+            this.song = song;
+        }
+
+        @Override
+        public void run(){
+            tvSong.setText(song.getTitle());
+            tvArtist.setText(song.getArtist());
         }
     }
 

@@ -1,5 +1,6 @@
 package com.titouan.sockettests;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -27,6 +28,10 @@ public class Song {
         }
     }
 
+    public Song(String json) throws JSONException{
+        this(new JSONObject(json));
+    }
+
     public long getId() {
         return id;
     }
@@ -37,6 +42,18 @@ public class Song {
 
     public String getArtist() {
         return artist;
+    }
+
+    public JSONObject getJSONObject(){
+        JSONObject json = new JSONObject();
+        try {
+            json.put("id", id);
+            json.put("title", title);
+            json.put("artist", artist);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json;
     }
 
     @Override
