@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,13 +19,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ServerActivity extends ActionBarActivity {
 
     private ServerSocket serverSocket;
     private Handler updateConversationHandler;
-    private Thread serverThread = null;
+    private ServerThread serverThread = null;
     private List<CommunicationThread> clientThreads;
     private int localPort = -1;
 
@@ -50,12 +52,13 @@ public class ServerActivity extends ActionBarActivity {
 
         updateConversationHandler = new Handler();
 
-        this.serverThread = new Thread(new ServerThread());
-        this.serverThread.start();
+        this.serverThread = new ServerThread();
+        new Thread(serverThread).start();
 
     }
 
     class ServerThread implements Runnable {
+
         public void run() {
 
             try {
@@ -80,7 +83,7 @@ public class ServerActivity extends ActionBarActivity {
                     clientThreads.add(commThread);
                     new Thread(commThread).start();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    return;
                 }
             }
         }
@@ -172,9 +175,10 @@ public class ServerActivity extends ActionBarActivity {
     protected void onDestroy() {
         super.onDestroy();
         mNsdHelper.tearDown();
+
         try {
-            serverThread.interrupt();
-        } catch (Exception e) {
+            serverSocket.close();
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

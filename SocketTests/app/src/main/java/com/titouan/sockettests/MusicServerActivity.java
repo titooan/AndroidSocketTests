@@ -40,7 +40,6 @@ public class MusicServerActivity extends ActionBarActivity {
     private int localPort = -1;
 
     private TextView text;
-    private EditText message;
 
     private NsdHelper mNsdHelper;
 
@@ -54,8 +53,6 @@ public class MusicServerActivity extends ActionBarActivity {
         setContentView(R.layout.activity_server);
 
         text = (TextView) findViewById(R.id.text);
-        message = (EditText) findViewById(R.id.message);
-
 
         WifiManager wm = (WifiManager) getSystemService(WIFI_SERVICE);
         String ip = Formatter.formatIpAddress(wm.getConnectionInfo().getIpAddress());
@@ -80,7 +77,6 @@ public class MusicServerActivity extends ActionBarActivity {
 
             musicsList = getSongsList();
 
-            Socket socket = null;
             try {
                 serverSocket = new ServerSocket(0);
                 localPort = serverSocket.getLocalPort();
@@ -92,11 +88,12 @@ public class MusicServerActivity extends ActionBarActivity {
             mNsdHelper.initializeRegistrationListener();
             mNsdHelper.registerService(localPort);
 
+            //Register service on network, publish IP and Port
             updateConversationHandler.post(new UpdateUIThread("Port : " + localPort));
 
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    socket = serverSocket.accept();
+                    Socket socket = serverSocket.accept();
 
                     CommunicationThread commThread = new CommunicationThread(socket);
                     clientThreads.add(commThread);
@@ -131,6 +128,7 @@ public class MusicServerActivity extends ActionBarActivity {
         @Override
         public void run() {
 
+            //When a connexion is opened by a client, we start by sending him the list of songs
             send(musicsList.toString());
 
             while (!Thread.currentThread().isInterrupted()) {
@@ -141,6 +139,8 @@ public class MusicServerActivity extends ActionBarActivity {
                         close();
                         return;
                     }
+
+                    //Check if the string received is a command or a song ID
                     if (read.equals("Play")) {
                         mediaPlayer.start();
                     } else if (read.equals("Pause")) {
@@ -198,12 +198,14 @@ public class MusicServerActivity extends ActionBarActivity {
         }
     }
 
-    public void send(View v) {
+    /**
+     * Methode using to send a message to all clients
+     * @param message
+     */
+    public void send(String message) {
         for (CommunicationThread thread : clientThreads) {
-            thread.send(message.getText().toString());
+            thread.send(message);
         }
-        message.setText("");
-        //TODO
     }
 
 
@@ -216,7 +218,6 @@ public class MusicServerActivity extends ActionBarActivity {
         }
 
         try {
-            serverSocket.close();
             serverThread.interrupt();
         } catch (Exception e) {
             e.printStackTrace();
