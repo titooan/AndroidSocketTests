@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.text.format.Formatter;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;

@@ -2,6 +2,7 @@ package com.titouan.sockettests;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
+import android.content.Context;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -148,11 +149,17 @@ public class MusicServerActivity extends ActionBarActivity {
                     }
 
                     //Check if the string received is a command or a song ID
-                    if (read.equals("Play")) {
+                    if (read.equals(Command.PLAY)) {
                         mediaPlayer.start();
-                    } else if (read.equals("Pause")) {
+                    } else if (read.equals(Command.PAUSE)) {
                         mediaPlayer.pause();
-                    } else {
+                    }else if(read.equals(Command.VOLUME_DOWN)) {
+                        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
+                    }else if(read.equals(Command.VOLUME_UP)) {
+                        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+                        audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+                    }else {
                         try {
                             long newSongId = Long.parseLong(read);
                             mediaPlayer.reset();

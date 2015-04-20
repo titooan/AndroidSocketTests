@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
@@ -66,11 +67,11 @@ public class MusicClientActivity extends ActionBarActivity {
 
         switch(view.getId()){
             case R.id.play:
-                out.println("Play");
+                out.println(Command.PLAY);
                 out.flush();
                 break;
             case R.id.pause:
-                out.println("Pause");
+                out.println(Command.PAUSE);
                 out.flush();
                 break;
         }
@@ -204,6 +205,23 @@ public class MusicClientActivity extends ActionBarActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_DOWN :
+                out.println(Command.VOLUME_DOWN);
+                out.flush();
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_UP :
+                out.println(Command.VOLUME_UP);
+                out.flush();
+                return true;
+            default:
+                //return super.dispatchKeyEvent(event);
+                return super.onKeyDown(keyCode,event);
         }
     }
 }
