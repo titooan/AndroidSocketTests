@@ -29,8 +29,7 @@ public class MusicClientActivity extends ActionBarActivity {
     private Socket socket;
 
     private ListView lvSongs;
-    private Button btnPlay;
-    private Button btnPause;
+    private Button btnPlayPause;
     private TextView tvSong;
     private TextView tvArtist;
 
@@ -45,14 +44,18 @@ public class MusicClientActivity extends ActionBarActivity {
 
     private ArrayList<Song> songsList;
 
+    /**
+     * Boolean used to know is server is playing or not
+     */
+    private boolean isPlaying = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_music_client);
 
         lvSongs = (ListView) findViewById(R.id.songs);
-        btnPause = (Button) findViewById(R.id.pause);
-        btnPlay = (Button) findViewById(R.id.play);
+        btnPlayPause = (Button) findViewById(R.id.playPause);
         tvSong = (TextView) findViewById(R.id.song_title);
         tvArtist = (TextView) findViewById(R.id.song_artist);
 
@@ -66,13 +69,11 @@ public class MusicClientActivity extends ActionBarActivity {
     public void onClick(View view){
 
         switch(view.getId()){
-            case R.id.play:
-                out.println(Command.PLAY);
+            case R.id.playPause:
+                out.println(isPlaying? Command.PAUSE : Command.PLAY);
                 out.flush();
-                break;
-            case R.id.pause:
-                out.println(Command.PAUSE);
-                out.flush();
+                isPlaying = !isPlaying;
+                btnPlayPause.setText(isPlaying? "Pause" : "Play");
                 break;
         }
 
@@ -140,9 +141,17 @@ public class MusicClientActivity extends ActionBarActivity {
                             MusicClientActivity.this.finish();
                             return;
                         }else{
-                            Log.d("Reçu", read);
-                            Song actualSong = new Song(read);
-                            updateUIHandler.post(new UpdateSongView(actualSong));
+                            Log.e("Received", read);
+                            if(read.equals(State.PAUSED)){
+                                isPlaying = false;
+                                updateUIHandler.post(new UpdateBtnPlayPause("Play"));
+                            }else if(read.equals(State.PLAYING)){
+                                isPlaying = true;
+                                updateUIHandler.post(new UpdateBtnPlayPause("Pause"));
+                            }else {
+                                Song actualSong = new Song(read);
+                                updateUIHandler.post(new UpdateSongView(actualSong));
+                            }
                         }
                     }catch(Exception e){
                         e.printStackTrace();
@@ -165,13 +174,24 @@ public class MusicClientActivity extends ActionBarActivity {
         public void run(){
             SongAdapter songAdapter = new SongAdapter(MusicClientActivity.this, songsList);
             lvSongs.setAdapter(songAdapter);
-            btnPause.setEnabled(true);
-            btnPlay.setEnabled(true);
+            btnPlayPause.setEnabled(true);
+        }
+    }
+
+    class UpdateBtnPlayPause implements Runnable {
+
+        String text;
+        public UpdateBtnPlayPause(String text){
+            this.text = text;
+        }
+
+        @Override
+        public void run() {
+            btnPlayPause.setText(text);
         }
     }
 
     class UpdateSongView implements Runnable {
-
         Song song;
 
         public UpdateSongView(Song song){
@@ -220,7 +240,6 @@ public class MusicClientActivity extends ActionBarActivity {
                 out.flush();
                 return true;
             default:
-                //return super.dispatchKeyEvent(event);
                 return super.onKeyDown(keyCode,event);
         }
     }

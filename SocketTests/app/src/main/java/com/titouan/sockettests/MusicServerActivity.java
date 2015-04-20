@@ -151,8 +151,10 @@ public class MusicServerActivity extends ActionBarActivity {
                     //Check if the string received is a command or a song ID
                     if (read.equals(Command.PLAY)) {
                         mediaPlayer.start();
+                        sendToAll(State.PLAYING);
                     } else if (read.equals(Command.PAUSE)) {
                         mediaPlayer.pause();
+                        sendToAll(State.PAUSED);
                     }else if(read.equals(Command.VOLUME_DOWN)) {
                         AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
                         audio.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
@@ -169,6 +171,7 @@ public class MusicServerActivity extends ActionBarActivity {
                             mediaPlayer.setDataSource(MusicServerActivity.this, newSongUri);
                             mediaPlayer.prepare();
                             sendToAll(songsList.get(newSongId).getJSONObject().toString());
+                            sendToAll(State.PAUSED);
                             updateUIHandler.post(new UpdateSongView(songsList.get(newSongId)));
                         } catch (Exception e) {
                             e.printStackTrace();
