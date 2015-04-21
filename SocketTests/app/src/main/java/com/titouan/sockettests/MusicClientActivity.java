@@ -230,17 +230,21 @@ public class MusicClientActivity extends ActionBarActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch(keyCode) {
-            case KeyEvent.KEYCODE_VOLUME_DOWN :
-                out.println(Command.VOLUME_DOWN);
-                out.flush();
-                return true;
-            case KeyEvent.KEYCODE_VOLUME_UP :
-                out.println(Command.VOLUME_UP);
-                out.flush();
-                return true;
-            default:
-                return super.onKeyDown(keyCode,event);
+        if(socket != null) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    out.println(Command.VOLUME_DOWN);
+                    out.flush();
+                    return true;
+                case KeyEvent.KEYCODE_VOLUME_UP:
+                    out.println(Command.VOLUME_UP);
+                    out.flush();
+                    return true;
+                default:
+                    return super.onKeyDown(keyCode, event);
+            }
+        }else{
+            return super.onKeyDown(keyCode, event);
         }
     }
 }
