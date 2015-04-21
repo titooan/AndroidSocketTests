@@ -50,6 +50,7 @@ public class MusicServerActivity extends ActionBarActivity {
     private MediaPlayer mediaPlayer;
     private JSONArray musicsList;
     private Map<Long, Song> songsList;
+    private Song songPlaying;
 
 
     @Override
@@ -138,6 +139,13 @@ public class MusicServerActivity extends ActionBarActivity {
 
             //When a connexion is opened by a client, we start by sending him the list of songs
             send(musicsList.toString());
+            //And then, if a music is already playing, we send for the client to display it
+            if(songPlaying != null){
+                send(songPlaying.getJSONObject().toString());
+            }
+            if(mediaPlayer.isPlaying()){
+                send(State.PLAYING);
+            }
 
             while (!Thread.currentThread().isInterrupted()) {
                 try {
@@ -170,7 +178,8 @@ public class MusicServerActivity extends ActionBarActivity {
                                     newSongId);
                             mediaPlayer.setDataSource(MusicServerActivity.this, newSongUri);
                             mediaPlayer.prepare();
-                            sendToAll(songsList.get(newSongId).getJSONObject().toString());
+                            songPlaying = songsList.get(newSongId);
+                            sendToAll(songPlaying.getJSONObject().toString());
                             sendToAll(State.PAUSED);
                             updateUIHandler.post(new UpdateSongView(songsList.get(newSongId)));
                         } catch (Exception e) {
