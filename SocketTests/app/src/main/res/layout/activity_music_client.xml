@@ -35,11 +35,14 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <Button
+        <ImageButton
+            android:id="@+id/play_pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Play"
-            android:id="@+id/playPause"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:src="@drawable/ic_play_arrow_white_24dp"
+            android:contentDescription="play or pause"
             android:onClick="onClick"
             android:enabled="false"/>
 

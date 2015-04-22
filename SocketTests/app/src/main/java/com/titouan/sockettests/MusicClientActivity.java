@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +30,7 @@ public class MusicClientActivity extends ActionBarActivity {
     private Socket socket;
 
     private ListView lvSongs;
-    private Button btnPlayPause;
+    private ImageButton btnPlayPause;
     private TextView tvSong;
     private TextView tvArtist;
 
@@ -55,7 +56,7 @@ public class MusicClientActivity extends ActionBarActivity {
         setContentView(R.layout.activity_music_client);
 
         lvSongs = (ListView) findViewById(R.id.songs);
-        btnPlayPause = (Button) findViewById(R.id.playPause);
+        btnPlayPause = (ImageButton) findViewById(R.id.play_pause);
         tvSong = (TextView) findViewById(R.id.song_title);
         tvArtist = (TextView) findViewById(R.id.song_artist);
 
@@ -69,11 +70,13 @@ public class MusicClientActivity extends ActionBarActivity {
     public void onClick(View view){
 
         switch(view.getId()){
-            case R.id.playPause:
-                out.println(isPlaying? Command.PAUSE : Command.PLAY);
-                out.flush();
-                isPlaying = !isPlaying;
-                btnPlayPause.setText(isPlaying? "Pause" : "Play");
+            case R.id.play_pause:
+                if(socket!=null) {
+                    out.println(isPlaying ? Command.PAUSE : Command.PLAY);
+                    out.flush();
+                    //isPlaying = !isPlaying;
+                    //btnPlayPause.setImageResource(isPlaying ? R.drawable.ic_play_arrow_white_24dp : R.drawable.ic_pause_white_24dp);
+                }
                 break;
         }
 
@@ -144,10 +147,10 @@ public class MusicClientActivity extends ActionBarActivity {
                             Log.e("Received", read);
                             if(read.equals(State.PAUSED)){
                                 isPlaying = false;
-                                updateUIHandler.post(new UpdateBtnPlayPause("Play"));
+                                updateUIHandler.post(new UpdateBtnPlayPause());
                             }else if(read.equals(State.PLAYING)){
                                 isPlaying = true;
-                                updateUIHandler.post(new UpdateBtnPlayPause("Pause"));
+                                updateUIHandler.post(new UpdateBtnPlayPause());
                             }else {
                                 Song actualSong = new Song(read);
                                 updateUIHandler.post(new UpdateSongView(actualSong));
@@ -174,20 +177,15 @@ public class MusicClientActivity extends ActionBarActivity {
         public void run(){
             SongAdapter songAdapter = new SongAdapter(MusicClientActivity.this, songsList);
             lvSongs.setAdapter(songAdapter);
-            btnPlayPause.setEnabled(true);
         }
     }
 
     class UpdateBtnPlayPause implements Runnable {
 
-        String text;
-        public UpdateBtnPlayPause(String text){
-            this.text = text;
-        }
-
         @Override
         public void run() {
-            btnPlayPause.setText(text);
+            btnPlayPause.setImageResource(isPlaying ? R.drawable.ic_pause_white_24dp : R.drawable.ic_play_arrow_white_24dp);
+            btnPlayPause.setEnabled(true);
         }
     }
 

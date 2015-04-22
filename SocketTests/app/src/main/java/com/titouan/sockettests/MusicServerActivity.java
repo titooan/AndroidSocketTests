@@ -145,6 +145,8 @@ public class MusicServerActivity extends ActionBarActivity {
             }
             if(mediaPlayer.isPlaying()){
                 send(State.PLAYING);
+            }else{
+                send(State.PAUSED);
             }
 
             while (!Thread.currentThread().isInterrupted()) {
