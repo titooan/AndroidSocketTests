@@ -1,10 +1,12 @@
 package com.titouan.sockettests;
 
 import android.content.Context;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -48,11 +50,14 @@ public class SongAdapter extends BaseAdapter {
 
         TextView tvTitle  = (TextView) songLay.findViewById(R.id.song_title);
         TextView tvArtist = (TextView) songLay.findViewById(R.id.song_artist);
+        ImageView songImg = (ImageView) songLay.findViewById(R.id.song_img);
 
         Song currentSong = songs.get(position);
 
         tvTitle.setText(currentSong.getTitle());
         tvArtist.setText(currentSong.getArtist());
+
+        songImg.setImageResource(R.mipmap.no_image_available);
 
         songLay.setTag(position);
         return songLay;
