@@ -3,15 +3,21 @@ package com.titouan.sockettests;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -102,18 +108,44 @@ public class MusicActivity extends ActionBarActivity {
                     (android.provider.MediaStore.Audio.Media._ID);
             int artistColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.ARTIST);
+            int duration = musicCursor.getColumnIndex
+                    (MediaStore.Audio.Media.DURATION);
+
+            Bitmap cover = getAlbumart(ContentUris.withAppendedId(
+                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    musicCursor.getLong(idColumn)));
+
             //add songs to list
             do {
 
                 list.add(new Song(
                         musicCursor.getLong(idColumn),
                         musicCursor.getString(titleColumn),
-                        musicCursor.getString(artistColumn)
+                        musicCursor.getString(artistColumn),
+                        musicCursor.getLong(duration)
+
                 ));
 
             }
             while (musicCursor.moveToNext());
         }
         return list;
+    }
+
+    public Bitmap getAlbumart(Uri uri) {
+        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(this.getApplicationContext(),uri);
+        Bitmap bitmap=null;
+
+        byte [] data = mmr.getEmbeddedPicture();
+        //coverart is an Imageview object
+
+        // convert the byte array to a bitmap
+        if(data != null)
+        {
+            bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        }
+
+        return bitmap;
     }
 }

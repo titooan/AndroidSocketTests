@@ -58,6 +58,12 @@ public class MainActivity extends ActionBarActivity {
             case R.id.musicClient:
                 startActivity(new Intent(this, MusicClientActivity.class));
                 break;
+            case R.id.musicSendClient:
+                startActivity(new Intent(this, SendMusicClient.class));
+                break;
+            case R.id.musicSendServer:
+                startActivity(new Intent(this, SendMusicServer.class));
+                break;
         }
     }
 }
