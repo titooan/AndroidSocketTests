@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -23,8 +24,8 @@
         </activity>
         <activity
             android:name=".ServerActivity"
-            android:label="@string/title_activity_server"
             android:configChanges="orientation|screenSize"
+            android:label="@string/title_activity_server"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -32,39 +33,47 @@
         </activity>
         <activity
             android:name=".ClientActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_client"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
         </activity>
         <activity
             android:name=".MusicActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_music"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
         </activity>
         <activity
             android:name=".MusicServerActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_music_server"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
         </activity>
         <activity
             android:name=".MusicClientActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_music_client"
-            android:parentActivityName=".MainActivity"
-            android:configChanges="orientation|screenSize">
+            android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.titouan.sockettests.MainActivity" />
+        </activity>
+        <activity
+            android:name=".SendMusicServer"
+            android:label="@string/title_activity_send_music_server" >
+        </activity>
+        <activity
+            android:name=".SendMusicClient"
+            android:label="@string/title_activity_send_music_client" >
         </activity>
     </application>
 

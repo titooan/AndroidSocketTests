@@ -34,6 +34,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/songs"
+        android:listSelector="#ff90e4ee"
         android:choiceMode="singleChoice"/>
 
 </LinearLayout>

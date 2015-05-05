@@ -8,4 +8,6 @@
     <string name="title_activity_music">Music</string>
     <string name="title_activity_music_server">MusicServer</string>
     <string name="title_activity_music_client">MusicClientActivity</string>
+    <string name="title_activity_send_music_server">SendMusicServer</string>
+    <string name="title_activity_send_music_client">SendMusicClient</string>
 </resources>

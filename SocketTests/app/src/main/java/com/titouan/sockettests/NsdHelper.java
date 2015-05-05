@@ -86,6 +86,8 @@ public class NsdHelper {
                                             ((ClientActivity) mContext).connectToServer(mService.getHost(), mService.getPort());
                                         }else if(mContext instanceof MusicClientActivity) {
                                             ((MusicClientActivity) mContext).connectToServer(mService.getHost(), mService.getPort());
+                                        }else if(mContext instanceof SendMusicClient) {
+                                            ((SendMusicClient) mContext).connectToServer(mService.getHost(), mService.getPort());
                                         }
                                     }catch(Exception e){
                                         e.printStackTrace();

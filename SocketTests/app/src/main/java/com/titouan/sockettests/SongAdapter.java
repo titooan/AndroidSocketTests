@@ -1,7 +1,6 @@
 package com.titouan.sockettests;
 
 import android.content.Context;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-
 /**
  * Created by titouan on 18/04/15.
  */
@@ -50,16 +46,34 @@ public class SongAdapter extends BaseAdapter {
 
         TextView tvTitle  = (TextView) songLay.findViewById(R.id.song_title);
         TextView tvArtist = (TextView) songLay.findViewById(R.id.song_artist);
+        TextView duration = (TextView) songLay.findViewById(R.id.song_duration);
         ImageView songImg = (ImageView) songLay.findViewById(R.id.song_img);
 
         Song currentSong = songs.get(position);
 
         tvTitle.setText(currentSong.getTitle());
         tvArtist.setText(currentSong.getArtist());
+        duration.setText(ConvertSecondToHHMMSSString(currentSong.getDuration()));
 
-        songImg.setImageResource(R.mipmap.no_image_available);
+        //if(currentSong.getCover()!=null){
+        //    songImg.setImageBitmap(currentSong.getCover());
+        //}else{
+            songImg.setImageResource(R.mipmap.no_image_available);
+        //}
 
         songLay.setTag(position);
         return songLay;
+    }
+
+
+    private String ConvertSecondToHHMMSSString(long mnSecondTime) {
+
+        long nSecondTime = mnSecondTime /1000;
+
+        long hours = nSecondTime / 3600;
+        long minutes = (nSecondTime % 3600) / 60;
+        long seconds = nSecondTime % 60;
+
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }

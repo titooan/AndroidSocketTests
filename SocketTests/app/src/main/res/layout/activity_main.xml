@@ -42,5 +42,19 @@
         android:id="@+id/musicClient"
         android:onClick="onClick" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Music Send Client"
+        android:id="@+id/musicSendClient"
+        android:onClick="onClick"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Music Send Server"
+        android:id="@+id/musicSendServer"
+        android:onClick="onClick"/>
+
 
 </LinearLayout>
